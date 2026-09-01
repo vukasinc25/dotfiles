@@ -1,0 +1,76 @@
+# =====================================================
+# Secrets and credentials — never commit these
+# =====================================================
+
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+id_rsa
+id_ed25519
+id_ecdsa
+known_hosts
+credentials*
+token*
+secrets*
+*secret*
+*apikey*
+*api_key*
+
+# =====================================================
+# Shell-generated files and history
+# =====================================================
+
+.zsh_history
+.zsh_sessions/
+.zcompdump*
+.histfile
+.node_repl_history
+.python_history
+
+# =====================================================
+# OS / file-manager noise
+# =====================================================
+
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+Thumbs.db
+desktop.ini
+
+# =====================================================
+# Editor temporary files
+# =====================================================
+
+*.swp
+*.swo
+*.swn
+*~
+\#*\#
+.\#*
+
+# =====================================================
+# Logs, caches, and generated state
+# =====================================================
+
+*.log
+.cache/
+.local/
+tmp/
+temp/
+
+# =====================================================
+# Neovim local/generated files
+# =====================================================
+
+nvim/.config/nvim/.luarc.json
+nvim/.config/nvim/.lazy.lua
+nvim/.config/nvim/lazyvim-state.json
+nvim/.config/nvim/plugin/
+nvim/.config/nvim/site/
