@@ -3,6 +3,6 @@ theme = Catppuccin Mocha
 background-opacity = 1.0
 background-blur = 20
 
-background-image = "/usr/share/backgrounds/osselo-Ask_a_friend.jpg"
+background-image = "$HOME/Pictures/terminal/background.jpg"
 background-image-opacity = 0.03
 background-image-fit = cover
