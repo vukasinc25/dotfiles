@@ -85,8 +85,15 @@ alias ...="cd ../.."
 alias proj="cd ~/Projects"
 
 # Better CLI tools
-alias cat="batcat"
-alias fd="fdfind"
+if (( $+commands[batcat] )); then
+  alias cat="batcat"
+elif (( $+commands[bat] )); then
+  alias cat="bat"
+fi
+
+if (( $+commands[fdfind] )); then
+  alias fd="fdfind"
+fi
 
 # Git
 alias gs="git status"
