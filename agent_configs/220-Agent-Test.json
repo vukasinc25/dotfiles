@@ -1,0 +1,697 @@
+{
+    "conversation_config": {
+        "agent": {
+            "disable_first_message_interruptions": false,
+            "dynamic_variables": {
+                "dynamic_variable_placeholders": {}
+            },
+            "first_message": "Hi, this is Anna. A digital assistant calling on a recorded line. At one time you reached out to Two Twenty Agents about real estate and was curious if you are still in the market to buy or sell.",
+            "hinglish_mode": false,
+            "language": "en",
+            "max_conversation_duration_message": "",
+            "prompt": {
+                "backup_llm_config": {
+                    "preference": "default"
+                },
+                "bedrock_llm": null,
+                "built_in_tools": {
+                    "end_call": {
+                        "assignments": [],
+                        "description": "",
+                        "disable_interruptions": false,
+                        "force_pre_tool_speech": false,
+                        "interruption_mode": "allow",
+                        "name": "end_call",
+                        "params": {
+                            "system_tool_type": "end_call"
+                        },
+                        "pre_tool_speech": "auto",
+                        "response_timeout_secs": 20,
+                        "tool_call_sound": null,
+                        "tool_call_sound_behavior": "auto",
+                        "tool_error_handling_mode": "auto",
+                        "type": "system"
+                    },
+                    "language_detection": null,
+                    "memory_entry_search": null,
+                    "play_keypad_touch_tone": null,
+                    "request_help": null,
+                    "run_subagent": null,
+                    "skip_turn": {
+                        "assignments": [],
+                        "description": "",
+                        "disable_interruptions": false,
+                        "force_pre_tool_speech": false,
+                        "interruption_mode": "allow",
+                        "name": "skip_turn",
+                        "params": {
+                            "system_tool_type": "skip_turn"
+                        },
+                        "pre_tool_speech": "auto",
+                        "response_timeout_secs": 20,
+                        "tool_call_sound": null,
+                        "tool_call_sound_behavior": "auto",
+                        "tool_error_handling_mode": "auto",
+                        "type": "system"
+                    },
+                    "transfer_to_agent": null,
+                    "transfer_to_genesys": null,
+                    "transfer_to_genesys_bot": null,
+                    "transfer_to_genesys_chat": null,
+                    "transfer_to_number": {
+                        "assignments": [],
+                        "description": "",
+                        "disable_interruptions": false,
+                        "force_pre_tool_speech": false,
+                        "interruption_mode": "allow",
+                        "name": "transfer_to_number",
+                        "params": {
+                            "enable_client_message": true,
+                            "system_tool_type": "transfer_to_number",
+                            "transfers": [
+                                {
+                                    "condition": "the person is interested in talking to a human",
+                                    "custom_sip_headers": [],
+                                    "phone_number": "+19192474684",
+                                    "post_dial_digits": null,
+                                    "require_acceptance": false,
+                                    "sip_refer_play_dialtone": true,
+                                    "transfer_destination": {
+                                        "phone_number": "+19192474684",
+                                        "type": "phone"
+                                    },
+                                    "transfer_type": "conference",
+                                    "uui": null
+                                }
+                            ]
+                        },
+                        "pre_tool_speech": "auto",
+                        "response_timeout_secs": 20,
+                        "tool_call_sound": null,
+                        "tool_call_sound_behavior": "auto",
+                        "tool_error_handling_mode": "auto",
+                        "type": "system"
+                    },
+                    "update_state": null,
+                    "voicemail_detection": {
+                        "assignments": [],
+                        "description": "",
+                        "disable_interruptions": false,
+                        "force_pre_tool_speech": false,
+                        "interruption_mode": "allow",
+                        "name": "voicemail_detection",
+                        "params": {
+                            "system_tool_type": "voicemail_detection",
+                            "voicemail_message": ""
+                        },
+                        "pre_tool_speech": "auto",
+                        "response_timeout_secs": 20,
+                        "tool_call_sound": null,
+                        "tool_call_sound_behavior": "auto",
+                        "tool_error_handling_mode": "auto",
+                        "type": "system"
+                    }
+                },
+                "cascade_timeout_seconds": 8.0,
+                "custom_llm": null,
+                "enable_parallel_tool_calls": false,
+                "enable_reasoning_summary": false,
+                "ignore_default_personality": false,
+                "knowledge_base": [],
+                "llm": "qwen3-30b-a3b",
+                "max_tokens": -1,
+                "mcp_server_ids": [],
+                "native_mcp_server_ids": [],
+                "opener": null,
+                "prompt": "# Identity\nYou are **Anna**, a friendly, empathetic, and efficient **Digital Assistant** calling on behalf of **Two Twenty Agents**, a real estate team in the Triangle area (Raleigh, Durham, Chapel Hill).\nYou are NOT a human, sales rep, or licensed real estate agent.  \nIf asked, say: “I’m a Digital Assistant with Two Twenty Agents.”\n# Purpose\nYour job is simple:\n1. Determine if the person is still interested in buying or selling a home.  \n2. Clarify their situation using soft, non-pushy persistence.\n3. If they are even *potentially* interested → offer a **live transfer** to an agent.\n4. If they can’t talk now → offer to **schedule a time**.\n5. If they are not interested → politely close.\n6. Always ask for referrals before ending the call (unless wrong number / stop calling).\nYour tone is upbeat, polite, and calm.  \nNever pressure. Never pry. Never ask more than one question at a time.\n# Global Guardrails\n- Never give real estate advice, pricing opinions, or property claims.\n- Never discuss fees, contracts, commissions, or legal matters.\n- If asked about Two Twenty Agents, describe them as a team of experienced, local real estate agents.\n- If the person asks to stop calling → apologize and immediately end the call.\n- If it’s a wrong number → apologize and immediately end the call.\n- Respect any boundary or discomfort.\n- Never make assumptions. Never argue. Never contradict.\n# Conversation Structure (State Machine)\n---\n## STATE: greeting\nTrigger: call connects or user asks “who is this?”\nAction:\n- Be warm and respectful.\n- Use this intro:\n  “Hi there, this is Anna on a recorded line with Two Twenty Agents. At one time you reached out about buying or selling a home, and I just wanted to see if you’re still considering a move by any chance.”\nThen move to **STATE: interest_check**.\n---\n## STATE: interest_check\nUser responses fall into categories:\n### 1. CLEAR YES / STILL INTERESTED\nRoute → **STATE: active_interest**\n### 2. MAYBE / UNSURE / DEPENDS / “IF RATES DROP”\nRoute → **STATE: future_interest**\n### 3. FIRST NO (soft no)\nMost people reflexively say “no” just to avoid being pitched.\nDo NOT end the call here.\nRoute → **STATE: clarify_reason**\n### 4. WRONG NUMBER / STOP CALLING\nRoute → **STATE: hard_exit**\n---\n## STATE: clarify_reason (Soft Persistence Step)\nTrigger: user says “no,” “not anymore,” “not right now,” “we’re good,” or any reflexive decline.\nAction:\nUse a soft, zero-pressure clarification:\n“Totally understand — a lot of folks are just putting things on pause. Just so I don’t close this out incorrectly, did you already make a move, or are things simply on hold for now?”\nTheir answer determines the next route:\n- “We bought a home / we moved” → **STATE: bought_home**\n- “We’re waiting / on hold / not sure” → **STATE: paused_plans**\n- “I don’t want to say” → **STATE: no_disclosure**\n- “Actually yes we may still move” → **STATE: active_interest**\n- A firm, repeated “not interested” → **STATE: true_no**\n---\n## STATE: bought_home\nTrigger: user already purchased a home.\nAction:\n- Congratulate them sincerely.\n- DO NOT ask follow-up questions.\n- Route → **STATE: referral_request**\n---\n## STATE: paused_plans\nTrigger: user says they paused things temporarily or indefinitely.\nAction:\n- Acknowledge politely: “Totally makes sense.”\n- Let them know they can reach out if plans change.\n- Route → **STATE: referral_request**\n---\n## STATE: no_disclosure\nTrigger: user refuses to explain why they’re not in the market.\nAction:\n- Acknowledge briefly.\n- Do not push.\n- Route → **STATE: referral_request**\n---\n## STATE: true_no\nTrigger: user firmly confirms they are NOT moving and NOT interested.\nAction:\n- Acknowledge politely.\n- Route → **STATE: referral_request**  \n(You still ask for referrals unless they are upset.)\n---\n## STATE: future_interest\nTrigger: user says “maybe,” “possibly,” “depends,” “if the right place comes along,” etc.\nAction:\n- Say something like:\n  “Makes total sense. Even if you’re not moving this minute, it can be helpful to touch base with an agent and stay ahead of the market.”\n- Then ask:\n  “Would you like me to connect you with a local agent for a quick chat?”\nRoutes:\n- Yes → **STATE: transfer_offer**\n- No → **STATE: referral_request**\n---\n## STATE: active_interest\nTrigger: user says yes they are still thinking of buying or selling.\nAction:\n- Acknowledge the excitement.\n- Ask one simple timeline question:\n  “Got it — what kind of timeframe are you considering? The next few months or later this year?”\nRoutes:\n- Soon (0–6 months) → **STATE: transfer_offer**\n- Later / not sure → **STATE: schedule_offer**\n---\n## STATE: transfer_offer\nAction:\nOffer the live transfer:\n“Perfect. I can connect you with an agent right now who can help walk through your plans. Would you like me to transfer you?”\nRoutes:\n- Yes → call the live transfer tool.\n- No → **STATE: schedule_offer**\n---\n## STATE: schedule_offer\nTrigger: user cannot talk now or declines transfer.\nAction:\nOffer a scheduled time:\n“No problem — is there a time that works better for a quick call with the agent?”\nRoutes:\n- Gives a time → use scheduling tool → **STATE: referral_request**\n- Declines scheduling → **STATE: referral_request**\n---\n## STATE: referral_request\nAction:\nBefore ending the call, ask politely:\n“One quick question before I let you go — do you happen to know anyone who might be thinking about buying or selling a home? We’d be happy to help them as well.”\nRoutes:\n- If they give a referral → collect name + phone → thank them.\n- If they decline → no problem.\nThen → **STATE: polite_exi_**\n",
+                "rag": {
+                    "embedding_model": "e5_mistral_7b_instruct",
+                    "enabled": false,
+                    "knowledge_base_tool_info": null,
+                    "max_documents_length": 50000,
+                    "max_retrieved_rag_chunks_count": 20,
+                    "max_vector_distance": 0.6,
+                    "num_candidates": null,
+                    "optional_rag_enabled": false,
+                    "query_rewrite_prompt_override": null
+                },
+                "reasoning_effort": null,
+                "speech_engine": null,
+                "temperature": 0.11,
+                "thinking_budget": null,
+                "timezone": "America/New_York",
+                "tool_ids": [],
+                "tools": [
+                    {
+                        "assignments": [],
+                        "description": "",
+                        "disable_interruptions": false,
+                        "force_pre_tool_speech": false,
+                        "interruption_mode": "allow",
+                        "name": "end_call",
+                        "params": {
+                            "system_tool_type": "end_call"
+                        },
+                        "pre_tool_speech": "auto",
+                        "response_timeout_secs": 20,
+                        "tool_call_sound": null,
+                        "tool_call_sound_behavior": "auto",
+                        "tool_error_handling_mode": "auto",
+                        "type": "system"
+                    },
+                    {
+                        "assignments": [],
+                        "description": "",
+                        "disable_interruptions": false,
+                        "force_pre_tool_speech": false,
+                        "interruption_mode": "allow",
+                        "name": "transfer_to_number",
+                        "params": {
+                            "enable_client_message": true,
+                            "system_tool_type": "transfer_to_number",
+                            "transfers": [
+                                {
+                                    "condition": "the person is interested in talking to a human",
+                                    "custom_sip_headers": [],
+                                    "phone_number": "+19192474684",
+                                    "post_dial_digits": null,
+                                    "require_acceptance": false,
+                                    "sip_refer_play_dialtone": true,
+                                    "transfer_destination": {
+                                        "phone_number": "+19192474684",
+                                        "type": "phone"
+                                    },
+                                    "transfer_type": "conference",
+                                    "uui": null
+                                }
+                            ]
+                        },
+                        "pre_tool_speech": "auto",
+                        "response_timeout_secs": 20,
+                        "tool_call_sound": null,
+                        "tool_call_sound_behavior": "auto",
+                        "tool_error_handling_mode": "auto",
+                        "type": "system"
+                    },
+                    {
+                        "assignments": [],
+                        "description": "",
+                        "disable_interruptions": false,
+                        "force_pre_tool_speech": false,
+                        "interruption_mode": "allow",
+                        "name": "skip_turn",
+                        "params": {
+                            "system_tool_type": "skip_turn"
+                        },
+                        "pre_tool_speech": "auto",
+                        "response_timeout_secs": 20,
+                        "tool_call_sound": null,
+                        "tool_call_sound_behavior": "auto",
+                        "tool_error_handling_mode": "auto",
+                        "type": "system"
+                    },
+                    {
+                        "assignments": [],
+                        "description": "",
+                        "disable_interruptions": false,
+                        "force_pre_tool_speech": false,
+                        "interruption_mode": "allow",
+                        "name": "voicemail_detection",
+                        "params": {
+                            "system_tool_type": "voicemail_detection",
+                            "voicemail_message": ""
+                        },
+                        "pre_tool_speech": "auto",
+                        "response_timeout_secs": 20,
+                        "tool_call_sound": null,
+                        "tool_call_sound_behavior": "auto",
+                        "tool_error_handling_mode": "auto",
+                        "type": "system"
+                    }
+                ]
+            },
+            "text_behavior_overrides": null
+        },
+        "asr": {
+            "keywords": [],
+            "provider": "scribe_realtime",
+            "quality": "high",
+            "user_input_audio_format": "pcm_16000"
+        },
+        "conversation": {
+            "background_sound": {
+                "crossfade_loop": false,
+                "source_id": null,
+                "source_type": null,
+                "volume": 0.6
+            },
+            "client_events": [
+                "audio",
+                "interruption",
+                "agent_response",
+                "user_transcript",
+                "agent_response_correction",
+                "agent_tool_response"
+            ],
+            "compaction": {
+                "enabled": null,
+                "min_reclaimable_tokens": null,
+                "soft_trigger_fraction": null,
+                "tail_size": null
+            },
+            "dtmf_input_settings": null,
+            "file_input": {
+                "enabled": true,
+                "max_files_in_memory": 10,
+                "max_files_per_conversation": 10
+            },
+            "max_duration_seconds": 600,
+            "max_duration_seconds_after_last_agent_message": null,
+            "monitoring_enabled": false,
+            "monitoring_events": [
+                "user_transcript",
+                "agent_response",
+                "agent_response_correction"
+            ],
+            "source_attribution": false,
+            "text_only": false
+        },
+        "language_presets": {},
+        "realtime_model": null,
+        "tts": {
+            "agent_output_audio_format": "pcm_16000",
+            "audio_effects": null,
+            "enable_phoneme_tags": false,
+            "expressive_mode": false,
+            "model_id": "eleven_turbo_v2",
+            "optimize_streaming_latency": 3,
+            "pronunciation_dictionary_locators": [],
+            "similarity_boost": 0.8,
+            "speed": 1.07,
+            "stability": 0.5,
+            "suggested_audio_tags": [],
+            "supported_voices": [],
+            "text_normalisation_type": "system_prompt",
+            "voice_id": "6u6JbqKdaQy89ENzLSju"
+        },
+        "turn": {
+            "initial_wait_time": null,
+            "interruption_ignore_term_languages": [],
+            "interruption_ignore_terms": [],
+            "merge_with_default_ignore_terms": false,
+            "mode": "turn",
+            "retranscribe_on_turn_timeout": false,
+            "silence_end_call_timeout": -1.0,
+            "soft_timeout_config": {
+                "additional_soft_timeout_messages": [],
+                "disable_until_first_user_message": false,
+                "llm_generated_message_prompt_override": null,
+                "max_soft_timeouts_per_generation": 1,
+                "message": "Hhmmmm...yeah give me a second...",
+                "randomize_fillers": false,
+                "timeout_seconds": -1.0,
+                "use_llm_generated_message": false
+            },
+            "speculative_turn": false,
+            "spelling_patience": "auto",
+            "transcribe_on_disabled_interruptions": false,
+            "turn_eagerness": "eager",
+            "turn_model": "turn_v2",
+            "turn_timeout": 7.0
+        },
+        "vad": {
+            "background_voice_detection": false
+        }
+    },
+    "name": "220 Agent Test",
+    "platform_settings": {
+        "alerting": null,
+        "analysis_bedrock_llm": null,
+        "analysis_items": null,
+        "analysis_llm": "gemini-2.5-flash",
+        "analysis_llm_billed": false,
+        "archived": false,
+        "auth": {
+            "allowlist": [],
+            "enable_auth": false,
+            "require_origin_header": false,
+            "shareable_token": null
+        },
+        "auto_translate_transcript_to_app_language": null,
+        "ban": null,
+        "call_limits": {
+            "agent_concurrency_limit": -1,
+            "bursting_enabled": true,
+            "daily_limit": 100000
+        },
+        "data_collection": {},
+        "data_collection_scopes": {},
+        "evaluation": {
+            "criteria": []
+        },
+        "guardrails": {
+            "content": {
+                "config": {
+                    "harassment": {
+                        "is_enabled": false,
+                        "threshold": "medium"
+                    },
+                    "medical_and_legal_information": {
+                        "is_enabled": false,
+                        "threshold": "medium"
+                    },
+                    "profanity": {
+                        "is_enabled": false,
+                        "threshold": "medium"
+                    },
+                    "religion_or_politics": {
+                        "is_enabled": false,
+                        "threshold": "medium"
+                    },
+                    "self_harm": {
+                        "is_enabled": false,
+                        "threshold": "medium"
+                    },
+                    "sexual": {
+                        "is_enabled": false,
+                        "threshold": "medium"
+                    },
+                    "violence": {
+                        "is_enabled": false,
+                        "threshold": "medium"
+                    }
+                },
+                "execution_mode": "streaming",
+                "trigger_action": {
+                    "type": "end_call"
+                }
+            },
+            "custom": {
+                "config": {
+                    "configs": []
+                }
+            },
+            "focus": {
+                "is_enabled": false
+            },
+            "moderation": {
+                "config": {
+                    "harassment": {
+                        "is_enabled": false,
+                        "threshold": 0.3
+                    },
+                    "harassment_threatening": {
+                        "is_enabled": false,
+                        "threshold": 0.3
+                    },
+                    "hate": {
+                        "is_enabled": false,
+                        "threshold": 0.3
+                    },
+                    "hate_threatening": {
+                        "is_enabled": false,
+                        "threshold": 0.3
+                    },
+                    "self_harm": {
+                        "is_enabled": false,
+                        "threshold": 0.3
+                    },
+                    "self_harm_instructions": {
+                        "is_enabled": false,
+                        "threshold": 0.3
+                    },
+                    "self_harm_intent": {
+                        "is_enabled": false,
+                        "threshold": 0.3
+                    },
+                    "sexual": {
+                        "is_enabled": false,
+                        "threshold": 0.3
+                    },
+                    "sexual_minors": {
+                        "is_enabled": false,
+                        "threshold": 0.3
+                    },
+                    "violence": {
+                        "is_enabled": false,
+                        "threshold": 0.3
+                    },
+                    "violence_graphic": {
+                        "is_enabled": false,
+                        "threshold": 0.3
+                    }
+                },
+                "execution_mode": "streaming"
+            },
+            "prompt_injection": {
+                "is_enabled": false
+            },
+            "synthetic_voice": {
+                "is_enabled": false,
+                "trigger_action": {
+                    "type": "end_call"
+                }
+            },
+            "version": "1"
+        },
+        "overrides": {
+            "conversation_config_override": {
+                "agent": {
+                    "first_message": false,
+                    "language": false,
+                    "max_conversation_duration_message": false,
+                    "prompt": {
+                        "knowledge_base": false,
+                        "llm": false,
+                        "native_mcp_server_ids": false,
+                        "prompt": false,
+                        "tool_ids": false
+                    }
+                },
+                "asr": {
+                    "keywords": false
+                },
+                "conversation": {
+                    "max_duration_seconds": false,
+                    "text_only": true
+                },
+                "tts": {
+                    "model_id": false,
+                    "pronunciation_dictionary_locators": false,
+                    "similarity_boost": false,
+                    "speed": false,
+                    "stability": false,
+                    "supported_voices": false,
+                    "voice_id": false
+                },
+                "turn": {
+                    "soft_timeout_config": {
+                        "additional_soft_timeout_messages": false,
+                        "message": false
+                    }
+                }
+            },
+            "custom_llm_extra_body": false,
+            "enable_conversation_initiation_client_data_from_webhook": false,
+            "enable_procedure_ids_from_client": false,
+            "enable_starting_workflow_node_id_from_client": false
+        },
+        "overview_dashboard_template_id": null,
+        "privacy": {
+            "apply_to_existing_conversations": false,
+            "conversation_history_redaction": {
+                "enabled": false,
+                "entities": []
+            },
+            "delete_audio": false,
+            "delete_transcript_and_pii": false,
+            "nested_history_redaction": false,
+            "record_voice": true,
+            "retention_days": -1,
+            "zero_retention_mode": false
+        },
+        "queueing_config": {
+            "enabled": false,
+            "hold_audio": null,
+            "wait_timeout_seconds": 180
+        },
+        "safety": {
+            "ignore_safety_evaluation": false,
+            "is_blocked_ivc": false,
+            "is_blocked_non_ivc": false
+        },
+        "sentiment_analysis": {
+            "enabled": true
+        },
+        "simulation_library": {
+            "enabled": false,
+            "test_ids": []
+        },
+        "smb_metadata": null,
+        "summary_language": null,
+        "testing": {
+            "attached_tests": [],
+            "referenced_tests_ids": []
+        },
+        "topic_discovery": {
+            "enabled": true
+        },
+        "trust_context": "unknown",
+        "widget": {
+            "action_text": null,
+            "always_expanded": true,
+            "avatar": {
+                "color_1": "#2792dc",
+                "color_2": "#9ce6e6",
+                "type": "orb"
+            },
+            "bg_color": "#ffffff",
+            "border_color": "#e1e1e1",
+            "border_radius": null,
+            "btn_color": "#000000",
+            "btn_radius": null,
+            "btn_text_color": "#ffffff",
+            "conversation_mode_toggle_enabled": false,
+            "custom_avatar_path": null,
+            "default_expanded": false,
+            "disable_banner": false,
+            "dismissible": false,
+            "end_call_text": null,
+            "end_feedback": null,
+            "expand_text": null,
+            "expandable": "never",
+            "feedback_mode": "during",
+            "first_message_quick_replies": [],
+            "focus_color": "#000000",
+            "language_presets": {},
+            "language_selector": false,
+            "listening_text": null,
+            "markdown_link_allow_http": true,
+            "markdown_link_allowed_hosts": [],
+            "markdown_link_include_www": true,
+            "mic_muting_enabled": false,
+            "override_link": null,
+            "placement": "top",
+            "shareable_page_show_terms": true,
+            "shareable_page_text": null,
+            "show_agent_status": false,
+            "show_avatar_when_collapsed": false,
+            "show_conversation_id": true,
+            "show_resize_button": true,
+            "speaking_text": null,
+            "start_call_text": null,
+            "strip_audio_tags": true,
+            "styles": {
+                "accent": null,
+                "accent_active": null,
+                "accent_border": null,
+                "accent_hover": null,
+                "accent_primary": null,
+                "accent_subtle": null,
+                "base": null,
+                "base_active": null,
+                "base_border": null,
+                "base_error": null,
+                "base_hover": null,
+                "base_primary": null,
+                "base_subtle": null,
+                "bubble_radius": null,
+                "button_radius": null,
+                "compact_sheet_radius": null,
+                "dropdown_sheet_radius": null,
+                "input_radius": null,
+                "overlay_padding": null,
+                "sheet_radius": null
+            },
+            "supports_text_only": true,
+            "syntax_highlight_theme": null,
+            "terms_html": "<h4>Terms and conditions</h4>\n<p>By clicking &quot;Agree,&quot; and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.</p>\n",
+            "terms_key": null,
+            "terms_text": "#### Terms and conditions\n\nBy clicking \"Agree,\" and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.",
+            "text_color": "#000000",
+            "text_contents": {
+                "accept_terms": null,
+                "agent_done": null,
+                "agent_ended_conversation": null,
+                "agent_error": null,
+                "agent_working": null,
+                "attach_file": null,
+                "change_language": null,
+                "chatting_status": null,
+                "collapse": null,
+                "connecting_status": null,
+                "conversation_id": null,
+                "copied": null,
+                "copy": null,
+                "copy_id": null,
+                "dismiss_terms": null,
+                "download": null,
+                "end_call": null,
+                "error_occurred": null,
+                "expand": null,
+                "file_limit_reached": null,
+                "file_too_large": null,
+                "file_type_unsupported": null,
+                "file_upload_error": null,
+                "follow_up_feedback_placeholder": null,
+                "go_back": null,
+                "initiate_feedback": null,
+                "input_label": null,
+                "input_placeholder": null,
+                "input_placeholder_new_conversation": null,
+                "input_placeholder_text_only": null,
+                "listening_status": null,
+                "main_label": null,
+                "mute_microphone": null,
+                "new_call": null,
+                "remove_file": null,
+                "request_follow_up_feedback": null,
+                "send_message": null,
+                "speaking_status": null,
+                "start_call": null,
+                "start_chat": null,
+                "submit": null,
+                "switched_to_text_mode": null,
+                "switched_to_voice_mode": null,
+                "text_mode": null,
+                "thanks_for_feedback": null,
+                "thanks_for_feedback_details": null,
+                "typing_indicator": null,
+                "user_ended_conversation": null,
+                "voice_mode": null,
+                "wrap": null
+            },
+            "text_input_enabled": true,
+            "transcript_enabled": false,
+            "variant": "full"
+        },
+        "workspace_overrides": {
+            "conversation_initiation_client_data_webhook": null,
+            "webhooks": {
+                "events": [
+                    "transcript"
+                ],
+                "post_call_webhook_id": null,
+                "send_audio": false,
+                "transcript_format": "json"
+            }
+        }
+    },
+    "tags": [],
+    "workflow": {
+        "edges": {},
+        "nodes": {
+            "start_node": {
+                "edge_order": [],
+                "parent_subgraph_id": null,
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "type": "start"
+            }
+        },
+        "prevent_subagent_loops": false,
+        "subgraphs": {}
+    }
+}
